@@ -1,10 +1,8 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import type { ScanReport } from "@web-inspectra/shared-types";
-import DOMTreeViewer from "@/components/DOMTreeViewer";
-import WaterfallChart from "@/components/WaterfallChart";
-import ScoreGauge from "@/components/ScoreGauge";
+import DOMTreeViewer from "./components/DOMTreeViewer";
+import WaterfallChart from "./components/WaterfallChart";
+import ScoreGauge from "./components/ScoreGauge";
 import {
   Activity,
   Cpu,
@@ -27,17 +25,17 @@ import {
 } from "lucide-react";
 
 const SCAN_STEPS = [
-  "Initializing Playwright browser context...",
-  "Loading page content and monitoring network traffic...",
-  "Inspecting HTTP response & security headers...",
-  "Extracting page elements and DOM hierarchy...",
-  "Analyzing accessibility rules (axe-core)...",
-  "Running Lighthouse performance analysis...",
-  "Consulting AI Website Doctor (Gemini)...",
-  "Assembling final report visual metrics..."
+  "Calibrating website MRI scanner context...",
+  "Injecting network contrast agents and tracking assets...",
+  "Auditing security immune system and headers...",
+  "Reading HTML DOM skeletal anatomy structure...",
+  "Testing user reflex and accessibility compliance...",
+  "Measuring performance heart rate and Lighthouse speed...",
+  "Consulting AI Chief Medical Officer (Gemini Agent)...",
+  "Compiling comprehensive visual anatomy report..."
 ];
 
-export default function Home() {
+export default function App() {
   const [activeMode, setActiveMode] = useState<"single" | "compare">("single");
   
   // Single scan state
@@ -60,7 +58,7 @@ export default function Home() {
 
   // Automatically cycle through progress steps during scanning
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (scanStatus === "loading") {
       setCurrentStepIdx(0);
       interval = setInterval(() => {
@@ -70,13 +68,13 @@ export default function Home() {
           }
           return prev;
         });
-      }, 3500);
+      }, 3000);
     }
     return () => clearInterval(interval);
   }, [scanStatus]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (compareStatus === "loading") {
       setCompareStepIdx(0);
       interval = setInterval(() => {
@@ -86,7 +84,7 @@ export default function Home() {
           }
           return prev;
         });
-      }, 5000);
+      }, 4000);
     }
     return () => clearInterval(interval);
   }, [compareStatus]);
@@ -102,7 +100,7 @@ export default function Home() {
     setCurrentStepIdx(0);
 
     try {
-      const response = await fetch("/api/scan", {
+      const response = await fetch("http://localhost:3001/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: singleUrl }),
@@ -115,12 +113,12 @@ export default function Home() {
 
       setCurrentStepIdx(SCAN_STEPS.length - 1);
       const data = await response.json();
-      setReport(data);
+      setReport(data.report);
       setScanStatus("success");
       setActiveTab("ai");
     } catch (err: any) {
       console.error(err);
-      setScanError(err.message || "An unexpected error occurred.");
+      setScanError(err.message || "An unexpected error occurred contacting the scanning backend.");
       setScanStatus("error");
     }
   };
@@ -137,9 +135,8 @@ export default function Home() {
     setCompareStepIdx(0);
 
     try {
-      // Run both scans in parallel
       const [resA, resB] = await Promise.allSettled([
-        fetch("/api/scan", {
+        fetch("http://localhost:3001/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: urlA }),
@@ -148,9 +145,10 @@ export default function Home() {
             const err = await r.json().catch(() => ({}));
             throw new Error(err.error || `Failed to scan ${urlA}`);
           }
-          return r.json();
+          const data = await r.json();
+          return data.report;
         }),
-        fetch("/api/scan", {
+        fetch("http://localhost:3001/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: urlB }),
@@ -159,7 +157,8 @@ export default function Home() {
             const err = await r.json().catch(() => ({}));
             throw new Error(err.error || `Failed to scan ${urlB}`);
           }
-          return r.json();
+          const data = await r.json();
+          return data.report;
         })
       ]);
 
@@ -182,7 +181,6 @@ export default function Home() {
     }
   };
 
-  // Category badge colors for findings
   const getImpactColor = (impact: "low" | "medium" | "high") => {
     switch (impact) {
       case "high": return "bg-red-500/10 text-red-400 border-red-500/20";
@@ -212,13 +210,13 @@ export default function Home() {
         {/* Header */}
         <header className="flex flex-col items-center justify-center text-center mt-6 mb-12">
           <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/5 text-purple-400 text-xs font-bold uppercase tracking-wider mb-4 animate-pulse">
-            <Sparkles className="w-3.5 h-3.5" /> AI-Powered Site Explorer
+            <Sparkles className="w-3.5 h-3.5" /> AI-Powered Website MRI Scanner
           </div>
           <h1 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent tracking-tight">
             Web Inspectra
           </h1>
           <p className="text-zinc-400 mt-3 text-sm md:text-lg max-w-2xl leading-relaxed">
-            Scan and visualize the inner anatomy of any public website. Transform raw code, performance, accessibility, and tech stacks into a clear, interactive visual audit.
+            Diagnose the digital health of any public website. Get an interactive structural MRI scan, visual vital matchups, and AI-prescribed treatments in plain language.
           </p>
 
           {/* Mode Switcher */}
@@ -252,12 +250,9 @@ export default function Home() {
           </div>
         </header>
 
-        {/* ========================================================================= */}
         {/* SINGLE URL SCAN MODULE */}
-        {/* ========================================================================= */}
         {activeMode === "single" && (
           <div className="flex flex-col items-center">
-            {/* Input Form */}
             {scanStatus !== "loading" && (
               <form onSubmit={handleSingleScan} className="w-full max-w-2xl bg-zinc-900/60 border border-zinc-850 p-1.5 rounded-2xl flex items-center shadow-3xl hover:border-zinc-800 transition-all backdrop-blur-sm">
                 <Globe className="w-5 h-5 text-zinc-500 ml-4 flex-shrink-0" />
@@ -279,14 +274,12 @@ export default function Home() {
               </form>
             )}
 
-            {/* Loading Box */}
             {scanStatus === "loading" && (
               <div className="w-full max-w-lg bg-zinc-900/50 border border-zinc-800/80 p-8 rounded-3xl flex flex-col items-center shadow-3xl text-center backdrop-blur-md">
                 <RefreshCw className="w-10 h-10 text-purple-500 animate-spin mb-4" />
                 <h3 className="text-lg font-bold text-zinc-200">Examining Website Anatomy</h3>
                 <p className="text-zinc-500 text-xs mt-1">This takes about 10-15 seconds for performance diagnostics</p>
                 
-                {/* Steps Visualizer */}
                 <div className="w-full mt-6 bg-zinc-950 border border-zinc-900 rounded-xl p-4 divide-y divide-zinc-900 text-left">
                   {SCAN_STEPS.map((step, idx) => (
                     <div key={idx} className="flex items-center py-2 text-xs transition-opacity duration-300">
@@ -314,7 +307,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* Error Message */}
             {scanStatus === "error" && (
               <div className="w-full max-w-xl bg-red-500/10 border border-red-500/20 p-6 rounded-2xl flex items-start gap-4 shadow-xl">
                 <AlertOctagon className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
@@ -331,10 +323,9 @@ export default function Home() {
               </div>
             )}
 
-            {/* SCAN RESULTS DASHBOARD */}
+            {/* RESULTS DASHBOARD */}
             {scanStatus === "success" && report && (
               <div className="w-full mt-6 flex flex-col gap-6 animate-fade-in">
-                {/* Result Title Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl backdrop-blur-md">
                   <div className="flex items-center gap-3">
                     <Globe className="w-6 h-6 text-purple-400" />
@@ -350,11 +341,10 @@ export default function Home() {
                     }}
                     className="text-xs bg-zinc-800 hover:bg-zinc-700 border border-zinc-750 text-zinc-300 font-semibold px-4 py-2.5 rounded-xl transition-all"
                   >
-                    Run Another Scan
+                    Run New Scan
                   </button>
                 </div>
 
-                {/* Main Dashboard Tabs */}
                 <div className="flex border-b border-zinc-850 gap-2 overflow-x-auto pb-px">
                   <button
                     onClick={() => setActiveTab("ai")}
@@ -364,7 +354,7 @@ export default function Home() {
                         : "border-transparent text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
-                    <Sparkles className="w-4 h-4" /> AI Website Doctor
+                    <Sparkles className="w-4 h-4" /> 🩺 AI Chief Medical Officer
                   </button>
                   <button
                     onClick={() => setActiveTab("performance")}
@@ -374,7 +364,7 @@ export default function Home() {
                         : "border-transparent text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
-                    <Activity className="w-4 h-4" /> Performance
+                    <Activity className="w-4 h-4" /> ❤️ Cardio Vitals
                   </button>
                   <button
                     onClick={() => setActiveTab("dom")}
@@ -384,7 +374,7 @@ export default function Home() {
                         : "border-transparent text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
-                    <Code className="w-4 h-4" /> DOM Explorer
+                    <Code className="w-4 h-4" /> 💀 Skeletal Anatomy
                   </button>
                   <button
                     onClick={() => setActiveTab("accessibility")}
@@ -394,7 +384,7 @@ export default function Home() {
                         : "border-transparent text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
-                    <HeartPulse className="w-4 h-4" /> Accessibility
+                    <HeartPulse className="w-4 h-4" /> ♿ Reflexes & Accessibility
                   </button>
                   <button
                     onClick={() => setActiveTab("security")}
@@ -404,30 +394,25 @@ export default function Home() {
                         : "border-transparent text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
-                    <ShieldCheck className="w-4 h-4" /> Security & Tech
+                    <ShieldCheck className="w-4 h-4" /> 🛡️ Immune System & Tech
                   </button>
                 </div>
 
-                {/* TAB CONTENTS */}
                 <div className="min-h-[400px]">
-                  
-                  {/* AI WEBSITE DOCTOR TAB */}
                   {activeTab === "ai" && (
                     <div className="flex flex-col gap-6">
-                      {/* Overall Health Card */}
                       <div className="bg-gradient-to-r from-zinc-900 to-purple-950/20 border border-purple-900/20 p-6 rounded-2xl shadow-xl">
                         <div className="flex items-center gap-2 mb-3">
                           <Sparkles className="w-5 h-5 text-purple-400" />
-                          <h3 className="text-md font-bold uppercase tracking-wider text-purple-300">Doctor's Assessment</h3>
+                          <h3 className="text-md font-bold uppercase tracking-wider text-purple-300">AI Chief Medical Officer's Prognosis</h3>
                         </div>
                         <p className="text-zinc-300 text-sm md:text-base leading-relaxed">
                           {report.aiSummary?.overallHealth || "AI summary could not be retrieved. Running diagnostics..."}
                         </p>
                       </div>
 
-                      {/* AI Findings List */}
                       <div className="flex flex-col gap-4">
-                        <h4 className="font-bold text-zinc-400 text-sm uppercase tracking-wider pl-1">Actionable Diagnostics ({report.aiSummary?.findings.length || 0})</h4>
+                        <h4 className="font-bold text-zinc-400 text-sm uppercase tracking-wider pl-1">Prescribed Treatments & Remediation ({report.aiSummary?.findings.length || 0})</h4>
                         <div className="grid grid-cols-1 gap-4">
                           {report.aiSummary?.findings.map((f, idx) => (
                             <div key={idx} className="bg-zinc-900/40 border border-zinc-850 hover:border-zinc-800 p-5 rounded-2xl transition-all flex flex-col md:flex-row gap-4 items-start">
@@ -453,10 +438,8 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* PERFORMANCE TAB */}
                   {activeTab === "performance" && (
                     <div className="flex flex-col gap-8">
-                      {/* Metric Gauges */}
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         <ScoreGauge score={100 - Math.min((report.performance.lcp / 50), 100)} label="LCP (Largest Paint)" subtitle={`${(report.performance.lcp / 1000).toFixed(2)}s`} size={110} />
                         <ScoreGauge score={100 - Math.min((report.performance.fcp / 30), 100)} label="FCP (First Paint)" subtitle={`${(report.performance.fcp / 1000).toFixed(2)}s`} size={110} />
@@ -465,7 +448,6 @@ export default function Home() {
                         <ScoreGauge score={100 - Math.min((report.performance.totalLoadTime / 150), 100)} label="Speed Index" subtitle={`${(report.performance.totalLoadTime / 1000).toFixed(2)}s`} size={110} />
                       </div>
 
-                      {/* Stats Overview */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl flex items-center gap-4">
                           <Clock className="w-8 h-8 text-cyan-400" />
@@ -490,7 +472,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Waterfall */}
                       <div className="flex flex-col gap-3">
                         <h4 className="font-bold text-zinc-400 text-sm uppercase tracking-wider pl-1">Network Resource Loading Waterfall</h4>
                         <WaterfallChart requests={report.network.requests} />
@@ -498,11 +479,8 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* DOM EXPLORER TAB */}
                   {activeTab === "dom" && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      
-                      {/* Left: DOM Stats */}
                       <div className="flex flex-col gap-4 lg:col-span-1">
                         <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl">
                           <h4 className="font-bold text-zinc-400 text-xs uppercase tracking-wider mb-4">DOM Hierarchy Summary</h4>
@@ -522,7 +500,6 @@ export default function Home() {
                           </div>
                         </div>
 
-                        {/* Largest Subtrees */}
                         <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl">
                           <h4 className="font-bold text-zinc-400 text-xs uppercase tracking-wider mb-4">Heaviest Subtrees (Node Bloat)</h4>
                           <div className="flex flex-col gap-3.5">
@@ -539,22 +516,17 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Right: Interactive DOM Tree */}
                       <div className="lg:col-span-2 bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl max-h-[600px] overflow-y-auto">
                         <h4 className="font-bold text-zinc-400 text-xs uppercase tracking-wider mb-4">Interactive DOM Tree Explorer</h4>
                         <div className="flex flex-col border border-zinc-850/50 rounded-xl bg-zinc-950 p-4">
                           <DOMTreeViewer node={report.dom.tree} />
                         </div>
                       </div>
-
                     </div>
                   )}
 
-                  {/* ACCESSIBILITY TAB */}
                   {activeTab === "accessibility" && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      
-                      {/* Left Side: Score & Breakdown */}
                       <div className="flex flex-col gap-4 lg:col-span-1">
                         <ScoreGauge score={report.accessibility.score} label="Accessibility Score" subtitle="axe-core compliance rating" size={130} />
                         
@@ -571,7 +543,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Right Side: Violations Accordion */}
                       <div className="lg:col-span-2 flex flex-col gap-4">
                         <h4 className="font-bold text-zinc-400 text-sm uppercase tracking-wider pl-1">Compliance Violations ({report.accessibility.violations.length})</h4>
                         
@@ -610,7 +581,6 @@ export default function Home() {
                                   </div>
                                   <p className="text-zinc-400 text-xs md:text-sm mt-3 leading-relaxed">{violation.description}</p>
                                   
-                                  {/* Nodes Targeted */}
                                   <div className="mt-4 bg-zinc-950 rounded-xl p-3 border border-zinc-900">
                                     <span className="text-[10px] text-zinc-500 font-bold block uppercase tracking-wider mb-2">Targeted Elements ({violation.nodes.length})</span>
                                     <div className="flex flex-col gap-1.5 max-h-[120px] overflow-y-auto">
@@ -627,15 +597,11 @@ export default function Home() {
                           </div>
                         )}
                       </div>
-
                     </div>
                   )}
 
-                  {/* SECURITY & TECH STACK TAB */}
                   {activeTab === "security" && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      
-                      {/* Left: Security Headers */}
                       <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl flex flex-col gap-5">
                         <div className="flex justify-between items-center">
                           <h4 className="font-bold text-zinc-400 text-sm uppercase tracking-wider">Security Headers Compliance</h4>
@@ -676,12 +642,10 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Right: Tech Stack */}
                       <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl flex flex-col gap-6">
                         <h4 className="font-bold text-zinc-400 text-sm uppercase tracking-wider">Technology Stack Analysis</h4>
                         
                         <div className="flex flex-col gap-4">
-                          {/* Hosting */}
                           <div>
                             <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block mb-2">Hosting Provider / Server</span>
                             <span className="px-3.5 py-2 rounded-xl bg-zinc-950 border border-zinc-850/80 text-sm text-cyan-300 font-bold block w-fit">
@@ -689,7 +653,6 @@ export default function Home() {
                             </span>
                           </div>
 
-                          {/* Frameworks */}
                           <div>
                             <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block mb-2">JS Frameworks</span>
                             {report.techStack.frameworks.length === 0 ? (
@@ -705,7 +668,6 @@ export default function Home() {
                             )}
                           </div>
 
-                          {/* CSS Libraries */}
                           <div>
                             <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block mb-2">CSS Architecture</span>
                             {report.techStack.cssLibraries.length === 0 ? (
@@ -721,7 +683,6 @@ export default function Home() {
                             )}
                           </div>
 
-                          {/* Analytics */}
                           <div>
                             <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block mb-2">Analytics & Trackers</span>
                             {report.techStack.analytics.length === 0 ? (
@@ -737,7 +698,6 @@ export default function Home() {
                             )}
                           </div>
 
-                          {/* Other */}
                           {report.techStack.other.length > 0 && (
                             <div>
                               <span className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider block mb-2">Infrastructure & Bundlers</span>
@@ -752,23 +712,17 @@ export default function Home() {
                           )}
                         </div>
                       </div>
-
                     </div>
                   )}
-
                 </div>
-
               </div>
             )}
           </div>
         )}
 
-        {/* ========================================================================= */}
         {/* COMPARE SCANS MODULE */}
-        {/* ========================================================================= */}
         {activeMode === "compare" && (
           <div className="flex flex-col items-center">
-            {/* Dual Input Form */}
             {compareStatus !== "loading" && (
               <form onSubmit={handleCompareScan} className="w-full max-w-4xl bg-zinc-900/60 border border-zinc-850 p-5 rounded-2xl flex flex-col md:flex-row gap-4 items-center shadow-3xl hover:border-zinc-800 transition-all backdrop-blur-sm">
                 <div className="flex-1 w-full flex items-center bg-zinc-950 border border-zinc-850 p-2 rounded-xl">
@@ -778,7 +732,7 @@ export default function Home() {
                     placeholder="First website (e.g. site1.com)..."
                     value={urlA}
                     onChange={(e) => setUrlA(e.target.value)}
-                    className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-zinc-100 placeholder-zinc-600 text-sm py-2 px-2"
+                    className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-zinc-100 placeholder-zinc-650 text-sm py-2 px-2"
                     required
                   />
                 </div>
@@ -789,7 +743,7 @@ export default function Home() {
                     placeholder="Second website (e.g. site2.com)..."
                     value={urlB}
                     onChange={(e) => setUrlB(e.target.value)}
-                    className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-zinc-100 placeholder-zinc-600 text-sm py-2 px-2"
+                    className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-zinc-100 placeholder-zinc-650 text-sm py-2 px-2"
                     required
                   />
                 </div>
@@ -803,14 +757,12 @@ export default function Home() {
               </form>
             )}
 
-            {/* Loading Box */}
             {compareStatus === "loading" && (
               <div className="w-full max-w-lg bg-zinc-900/50 border border-zinc-800/80 p-8 rounded-3xl flex flex-col items-center shadow-3xl text-center backdrop-blur-md">
                 <RefreshCw className="w-10 h-10 text-purple-500 animate-spin mb-4" />
                 <h3 className="text-lg font-bold text-zinc-200">Comparing Website Anatomy</h3>
                 <p className="text-zinc-500 text-xs mt-1">Running Playwright and Lighthouse audits in parallel (approx 15-20s)</p>
                 
-                {/* Steps Visualizer */}
                 <div className="w-full mt-6 bg-zinc-950 border border-zinc-900 rounded-xl p-4 divide-y divide-zinc-900 text-left">
                   {SCAN_STEPS.map((step, idx) => (
                     <div key={idx} className="flex items-center py-2 text-xs transition-opacity duration-300">
@@ -838,7 +790,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* Error Message */}
             {compareStatus === "error" && (
               <div className="w-full max-w-xl bg-red-500/10 border border-red-500/20 p-6 rounded-2xl flex items-start gap-4 shadow-xl">
                 <AlertOctagon className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
@@ -858,7 +809,6 @@ export default function Home() {
             {/* COMPARISON RESULTS */}
             {compareStatus === "success" && reportA && reportB && (
               <div className="w-full mt-6 flex flex-col gap-6 animate-fade-in">
-                {/* Result Title Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-2xl backdrop-blur-md">
                   <div className="flex items-center gap-3">
                     <GitCompare className="w-6 h-6 text-purple-400" />
@@ -883,7 +833,6 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Compare Tabs */}
                 <div className="flex border-b border-zinc-850 gap-2 overflow-x-auto pb-px">
                   <button
                     onClick={() => setCompareActiveTab("overview")}
@@ -937,14 +886,9 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* COMPARE ACTIVE TABS */}
                 <div className="min-h-[400px]">
-                  
-                  {/* OVERVIEW MATCHUP TAB */}
                   {compareActiveTab === "overview" && (
                     <div className="grid grid-cols-1 gap-6">
-                      
-                      {/* Metric Comparison Table */}
                       <div className="bg-zinc-900/40 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
                         <div className="p-5 border-b border-zinc-850 bg-zinc-950/50">
                           <h4 className="font-bold text-zinc-300 text-sm">Site Matchup Analytics</h4>
@@ -960,7 +904,6 @@ export default function Home() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-zinc-850 text-zinc-300">
-                              {/* Total Load Time */}
                               <tr className="hover:bg-zinc-800/10">
                                 <td className="p-4 font-semibold">Speed Index (Load Time)</td>
                                 <td className="p-4 font-mono">{(reportA.performance.totalLoadTime / 1000).toFixed(2)}s</td>
@@ -974,7 +917,6 @@ export default function Home() {
                                 </td>
                               </tr>
 
-                              {/* LCP */}
                               <tr className="hover:bg-zinc-800/10">
                                 <td className="p-4 font-semibold">Largest Contentful Paint (LCP)</td>
                                 <td className="p-4 font-mono">{(reportA.performance.lcp / 1000).toFixed(2)}s</td>
@@ -988,7 +930,6 @@ export default function Home() {
                                 </td>
                               </tr>
 
-                              {/* Accessibility Score */}
                               <tr className="hover:bg-zinc-800/10">
                                 <td className="p-4 font-semibold">Accessibility Score</td>
                                 <td className="p-4 font-mono text-purple-400 font-bold">{reportA.accessibility.score}/100</td>
@@ -1004,7 +945,6 @@ export default function Home() {
                                 </td>
                               </tr>
 
-                              {/* Security Score */}
                               <tr className="hover:bg-zinc-800/10">
                                 <td className="p-4 font-semibold">Security Header Compliance</td>
                                 <td className="p-4 font-mono text-purple-400 font-bold">{reportA.security.score}/100</td>
@@ -1020,7 +960,6 @@ export default function Home() {
                                 </td>
                               </tr>
 
-                              {/* DOM Node Count */}
                               <tr className="hover:bg-zinc-800/10">
                                 <td className="p-4 font-semibold">DOM node weight</td>
                                 <td className="p-4 font-mono">{reportA.dom.nodeCount} nodes</td>
@@ -1034,7 +973,6 @@ export default function Home() {
                                 </td>
                               </tr>
 
-                              {/* Network Requests Weight */}
                               <tr className="hover:bg-zinc-800/10">
                                 <td className="p-4 font-semibold">Total Requests Weight</td>
                                 <td className="p-4 font-mono">{(reportA.performance.totalTransferSize / 1024 / 1024).toFixed(2)} MB</td>
@@ -1051,14 +989,11 @@ export default function Home() {
                           </table>
                         </div>
                       </div>
-
                     </div>
                   )}
 
-                  {/* COMPARE AI DOCTOR TAB */}
                   {compareActiveTab === "ai" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Doctor A */}
                       <div className="bg-zinc-900/40 border border-purple-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <div className="flex items-center gap-2 border-b border-zinc-850 pb-3">
                           <span className="text-purple-400 text-xs font-bold px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded uppercase">Site A</span>
@@ -1078,7 +1013,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Doctor B */}
                       <div className="bg-zinc-900/40 border border-cyan-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <div className="flex items-center gap-2 border-b border-zinc-850 pb-3">
                           <span className="text-cyan-400 text-xs font-bold px-2 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded uppercase">Site B</span>
@@ -1100,10 +1034,8 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* COMPARE PERFORMANCE TAB */}
                   {compareActiveTab === "performance" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Perf A */}
                       <div className="bg-zinc-900/40 border border-purple-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <h4 className="font-bold text-purple-400 text-xs uppercase tracking-wider">{reportA.url} Performance</h4>
                         <div className="grid grid-cols-2 gap-3 mt-2">
@@ -1130,7 +1062,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Perf B */}
                       <div className="bg-zinc-900/40 border border-cyan-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <h4 className="font-bold text-cyan-400 text-xs uppercase tracking-wider">{reportB.url} Performance</h4>
                         <div className="grid grid-cols-2 gap-3 mt-2">
@@ -1159,10 +1090,8 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* COMPARE ACCESSIBILITY TAB */}
                   {compareActiveTab === "accessibility" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* A11y A */}
                       <div className="bg-zinc-900/40 border border-purple-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <div className="flex justify-between items-center border-b border-zinc-850 pb-3">
                           <h4 className="font-bold text-purple-400 text-xs uppercase tracking-wider">{reportA.url} Accessibility</h4>
@@ -1183,7 +1112,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* A11y B */}
                       <div className="bg-zinc-900/40 border border-cyan-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <div className="flex justify-between items-center border-b border-zinc-850 pb-3">
                           <h4 className="font-bold text-cyan-400 text-xs uppercase tracking-wider">{reportB.url} Accessibility</h4>
@@ -1206,10 +1134,8 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* COMPARE SECURITY TAB */}
                   {compareActiveTab === "security" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Security A */}
                       <div className="bg-zinc-900/40 border border-purple-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <div className="flex justify-between items-center border-b border-zinc-850 pb-3">
                           <h4 className="font-bold text-purple-400 text-xs uppercase tracking-wider">{reportA.url} Security</h4>
@@ -1231,7 +1157,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Security B */}
                       <div className="bg-zinc-900/40 border border-cyan-500/15 p-6 rounded-2xl flex flex-col gap-4">
                         <div className="flex justify-between items-center border-b border-zinc-850 pb-3">
                           <h4 className="font-bold text-cyan-400 text-xs uppercase tracking-wider">{reportB.url} Security</h4>
@@ -1254,14 +1179,11 @@ export default function Home() {
                       </div>
                     </div>
                   )}
-
                 </div>
-
               </div>
             )}
           </div>
         )}
-
       </div>
     </div>
   );
