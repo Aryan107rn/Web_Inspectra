@@ -1,0 +1,17 @@
+{
+  "name": "web-inspectra",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "shared-types",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev": "concurrently -n frontend,backend -c cyan,magenta \"pnpm run dev:frontend\" \"pnpm run dev:backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
