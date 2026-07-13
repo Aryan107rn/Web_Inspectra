@@ -51,7 +51,7 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.55;
+  opacity: 0.38;
   animation: orbFloat 12s ease-in-out infinite;
 }
 .aurora-orb-1 {
@@ -229,6 +229,21 @@ body {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+@keyframes scanBeam {
+  0%   { transform: translateY(0vh);   opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+@keyframes radarRing {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0;   }
+}
+@keyframes blip {
+  0%, 60%, 100% { opacity: 0;   transform: scale(0.5); }
+  30%            { opacity: 1;   transform: scale(1.2); }
+  45%            { opacity: 0.6; transform: scale(1); }
 }
 
 /* ════════════════════════════════════════════════

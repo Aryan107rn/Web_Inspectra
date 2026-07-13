@@ -191,7 +191,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className="pill">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 blink inline-block" />
-              v2.0 Beta
+              AI Powered
             </span>
           </div>
         </nav>
@@ -315,57 +315,117 @@ export default function App() {
   if (status === "loading") return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-10 relative overflow-hidden" style={{ background: "#0d0d1f" }}>
       <AuroraBg />
-      <div className="relative z-10 flex flex-col items-center gap-10 animate-scale-in">
 
-        {/* Spinner */}
-        <div className="relative w-24 h-24">
-          <svg viewBox="0 0 96 96" className="absolute inset-0 w-full h-full animate-spin-slow">
-            <circle cx="48" cy="48" r="44" fill="none" stroke="rgba(167,139,250,0.1)" strokeWidth="2"/>
-            <circle cx="48" cy="48" r="44" fill="none" stroke="url(#spin-grad)" strokeWidth="2" strokeDasharray="24 254" strokeLinecap="round"/>
+      {/* Scanning beam overlay */}
+      <div className="fixed inset-0 pointer-events-none z-5" style={{ overflow: "hidden" }}>
+        <div style={{
+          position: "absolute",
+          top: 0, left: 0, right: 0,
+          height: "2px",
+          background: "linear-gradient(90deg, transparent 0%, #22d3ee 30%, #a78bfa 60%, transparent 100%)",
+          boxShadow: "0 0 20px rgba(34,211,238,0.6), 0 0 60px rgba(167,139,250,0.3)",
+          animation: "scanBeam 2.8s ease-in-out infinite",
+        }} />
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center gap-8 animate-scale-in">
+
+        {/* Radar scanner animation */}
+        <div className="relative" style={{ width: 160, height: 160 }}>
+          {/* Outer ring pulse */}
+          {[0,1,2].map(i => (
+            <div key={i} className="absolute rounded-full" style={{
+              inset: `${i * 20}px`,
+              border: "1px solid rgba(167,139,250,0.15)",
+              animation: `radarRing 2s ease-out ${i * 0.5}s infinite`,
+            }} />
+          ))}
+          {/* Main spinning ring */}
+          <svg viewBox="0 0 160 160" className="absolute inset-0 w-full h-full" style={{ animation: "rotateSlow 3s linear infinite" }}>
+            <circle cx="80" cy="80" r="74" fill="none" stroke="rgba(34,211,238,0.08)" strokeWidth="1.5"/>
+            <circle cx="80" cy="80" r="74" fill="none" stroke="url(#scan-outer)" strokeWidth="2"
+              strokeDasharray="40 426" strokeLinecap="round"/>
             <defs>
-              <linearGradient id="spin-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <linearGradient id="scan-outer" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#22d3ee"/>
                 <stop offset="100%" stopColor="#a78bfa"/>
               </linearGradient>
             </defs>
           </svg>
-          <svg viewBox="0 0 96 96" className="absolute inset-0 w-full h-full" style={{ animation: "rotateSlow 2s linear infinite reverse" }}>
-            <circle cx="48" cy="48" r="28" fill="none" stroke="rgba(244,114,182,0.12)" strokeWidth="2"/>
-            <circle cx="48" cy="48" r="28" fill="none" stroke="#f472b6" strokeWidth="1.5" strokeDasharray="10 166" strokeLinecap="round"/>
+          {/* Counter ring */}
+          <svg viewBox="0 0 160 160" className="absolute inset-0 w-full h-full" style={{ animation: "rotateSlow 2s linear infinite reverse" }}>
+            <circle cx="80" cy="80" r="52" fill="none" stroke="rgba(244,114,182,0.08)" strokeWidth="1.5"/>
+            <circle cx="80" cy="80" r="52" fill="none" stroke="#f472b6" strokeWidth="1.5"
+              strokeDasharray="16 310" strokeLinecap="round"/>
           </svg>
+          {/* Radar sweep */}
+          <svg viewBox="0 0 160 160" className="absolute inset-0 w-full h-full" style={{ animation: "rotateSlow 2.5s linear infinite" }}>
+            <defs>
+              <radialGradient id="sweep-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(34,211,238,0.0)"/>
+                <stop offset="40%" stopColor="rgba(34,211,238,0.0)"/>
+                <stop offset="80%" stopColor="rgba(34,211,238,0.12)"/>
+                <stop offset="100%" stopColor="rgba(34,211,238,0.0)"/>
+              </radialGradient>
+            </defs>
+            <path d="M80,80 L80,6 A74,74 0 0,1 154,80 Z" fill="url(#sweep-grad)"/>
+            <line x1="80" y1="80" x2="80" y2="8" stroke="rgba(34,211,238,0.5)" strokeWidth="1.5"/>
+          </svg>
+          {/* Center */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center glass"
-              style={{ border: "1px solid rgba(167,139,250,0.3)", boxShadow: "0 0 20px rgba(167,139,250,0.3)" }}>
-              <div className="w-6 h-6" style={{ color: "#a78bfa" }}><I.Scan /></div>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center glass"
+              style={{ border: "1px solid rgba(167,139,250,0.35)", boxShadow: "0 0 24px rgba(167,139,250,0.35), inset 0 1px 0 rgba(255,255,255,0.1)" }}>
+              <div className="w-7 h-7" style={{ color: "#c4b5fd" }}><I.Scan /></div>
             </div>
           </div>
+          {/* Blips */}
+          {[
+            { top: "18%", left: "62%", delay: "0.4s" },
+            { top: "55%", left: "80%", delay: "1.1s" },
+            { top: "72%", left: "35%", delay: "0.8s" },
+            { top: "30%", left: "22%", delay: "1.6s" },
+          ].map((b, i) => (
+            <div key={i} className="absolute w-1.5 h-1.5 rounded-full" style={{
+              top: b.top, left: b.left,
+              background: "#22d3ee",
+              boxShadow: "0 0 6px #22d3ee",
+              animation: `blip 2.5s ease-in-out ${b.delay} infinite`,
+            }} />
+          ))}
         </div>
 
-        {/* Current step */}
-        <div className="text-center">
-          <p className="text-lg font-bold mb-1" style={{ color: "var(--text-primary)" }}>{STEPS[stepIdx].label}</p>
-          <p className="text-sm font-mono" style={{ color: "var(--text-muted)" }}>{STEPS[stepIdx].sub}</p>
+        {/* URL being scanned */}
+        <div className="text-center animate-fade-up">
+          <p className="text-base font-bold mb-1" style={{ color: "var(--text-primary)" }}>{STEPS[stepIdx].label}</p>
+          <p className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>{STEPS[stepIdx].sub}</p>
         </div>
 
         {/* Steps list */}
         <div className="glass rounded-2xl p-5 w-80 space-y-3" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
           {STEPS.map((s, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 text-xs transition-all duration-500 ${i < stepIdx ? "text-emerald-400" : i === stepIdx ? "text-violet-400" : ""}`}
+            <div key={i} className="flex items-center gap-3 transition-all duration-300">
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 text-xs transition-all duration-500`}
                 style={{
-                  background: i < stepIdx ? "rgba(52,211,153,0.15)" : i === stepIdx ? "rgba(167,139,250,0.15)" : "rgba(255,255,255,0.04)",
-                  border: i < stepIdx ? "1px solid rgba(52,211,153,0.3)" : i === stepIdx ? "1px solid rgba(167,139,250,0.4)" : "1px solid rgba(255,255,255,0.06)",
+                  background: i < stepIdx ? "rgba(52,211,153,0.15)" : i === stepIdx ? "rgba(34,211,238,0.15)" : "rgba(255,255,255,0.03)",
+                  border: i < stepIdx ? "1px solid rgba(52,211,153,0.35)" : i === stepIdx ? "1px solid rgba(34,211,238,0.5)" : "1px solid rgba(255,255,255,0.05)",
+                  boxShadow: i === stepIdx ? "0 0 10px rgba(34,211,238,0.2)" : "none",
                 }}>
                 {i < stepIdx
-                  ? <span className="w-3 h-3"><I.Check /></span>
+                  ? <span className="w-3 h-3 text-emerald-400"><I.Check /></span>
                   : i === stepIdx
-                  ? <span className="w-2 h-2 rounded-full bg-violet-400 blink inline-block" />
+                  ? <span className="w-2 h-2 rounded-full blink inline-block" style={{ background: "#22d3ee", boxShadow: "0 0 6px #22d3ee" }} />
                   : <span className="text-[10px]">{s.icon}</span>}
               </div>
-              <span className={`text-xs font-mono transition-colors ${i < stepIdx ? "line-through" : ""}`}
-                style={{ color: i < stepIdx ? "var(--text-muted)" : i === stepIdx ? "var(--text-primary)" : "rgba(150,170,220,0.3)" }}>
+              <span className={`text-xs font-mono transition-all duration-300 ${i < stepIdx ? "line-through" : ""}`}
+                style={{
+                  color: i < stepIdx ? "var(--text-muted)" : i === stepIdx ? "#22d3ee" : "rgba(150,170,220,0.25)",
+                  fontWeight: i === stepIdx ? 600 : 400,
+                }}>
                 {s.label}
               </span>
+              {i === stepIdx && (
+                <span className="ml-auto text-[9px] font-mono" style={{ color: "rgba(34,211,238,0.6)" }}>…</span>
+              )}
             </div>
           ))}
         </div>
