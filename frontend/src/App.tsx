@@ -142,7 +142,7 @@ export default function App() {
       const parsed = new URL(withProto);
       if (!parsed.hostname.includes(".")) return "Please enter a valid website URL like example.com";
     } catch {
-      return "Invalid URL — try something like stripe.com or https://github.com";
+      return "Invalid URL — try something like youtube.com or https://github.com";
     }
     return "";
   };
@@ -250,7 +250,7 @@ export default function App() {
                   setUrlInput(e.target.value);
                   if (urlError) setUrlError(validateUrl(e.target.value));
                 }}
-                placeholder="Enter a URL — stripe.com, github.com..."
+                placeholder="Enter a URL — youtube.com, github.com..."
                 autoFocus
                 className="flex-1 py-3 bg-transparent border-0 outline-none font-mono text-sm"
                 style={{ color: "var(--text-primary)", caretColor: "#a78bfa" }}
