@@ -696,6 +696,7 @@ app.post("/scan", async (req, res) => {
   }
 });
 
+app.get("/", (_, res) => res.json({ status: "ok", message: "Web Inspectra API is running" }));
 app.get("/health", (_, res) => res.json({ status: "ok", aiEnabled: !!genAI }));
 
 if (process.env.NODE_ENV !== "production") {
