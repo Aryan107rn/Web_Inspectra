@@ -7,6 +7,7 @@
     "backend"
   ],
   "scripts": {
+    "vercel-build": "pnpm --filter frontend build && cp -r frontend/dist ./dist",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
     "dev": "concurrently -n frontend,backend -c cyan,magenta \"pnpm run dev:frontend\" \"pnpm run dev:backend\""
